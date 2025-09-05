@@ -4,6 +4,9 @@ const todoList = document.querySelector("#todo-list");
 const editForm = document.querySelector("#edit-form");
 const editInput = document.querySelector("#edit-input");
 const cancelEditBtn = document.querySelector("#cancel-edit-btn");
+const searchInput = document.querySelector("#search-input");
+const eraseButton = document.querySelector("#erase-button");
+const filterSelect = document.querySelector("#filter-select");
 
 let oldInputValue;
 
@@ -54,6 +57,47 @@ const updateTodo = (text) => {
     }
   });
 };
+
+// Função para filtrar
+const filtrarTodos = () => {
+  const todos = document.querySelectorAll(".todo");
+  const filtro = filterSelect.value;
+  const busca = searchInput.value.toLowerCase();
+
+  todos.forEach(todo => {
+    const texto = todo.querySelector("h3").innerText.toLowerCase();
+    const estaFeito = todo.classList.contains("done");
+    
+    let deveMostrar = true;
+    
+    // Filtro por status
+    if (filtro === "done" && !estaFeito) {
+      deveMostrar = false;
+    }
+    if (filtro === "todo" && estaFeito) {
+      deveMostrar = false;
+    }
+    
+    // Filtro por busca
+    if (busca && !texto.includes(busca)) {
+      deveMostrar = false;
+    }
+    
+    // Mostra ou oculta
+    if (deveMostrar) {
+      todo.style.display = "flex";
+    } else {
+      todo.style.display = "none";
+    }
+  });
+};
+
+// Função para limpar o input de busca
+const limparBusca = () => {
+  searchInput.value = "";
+  filtrarTodos();
+};
+
 //Eventos
 todoForm.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -76,6 +120,7 @@ document.addEventListener("click", (e) => {
 
   if (targetEl.classList.contains("finish-todo")) {
     parentEl.classList.toggle("done");
+    filtrarTodos(); // Aplica filtro após marcar como feito
   }
 
   if (targetEl.classList.contains("remove-todo")) {
@@ -106,4 +151,11 @@ editForm.addEventListener("submit", (e) => {
   }
 
   toggleForm();
+});
+
+filterSelect.addEventListener("change", filtrarTodos);
+searchInput.addEventListener("input", filtrarTodos);
+eraseButton.addEventListener("click", (e) => {
+  e.preventDefault();
+  limparBusca();
 });
